@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="index, follow">
+<title>Digital Footprint Self-Audit — Check Your Own Public Exposure</title>
+<meta name="description" content="Free self-audit tool. Check your own public digital footprint across platforms and search engines. Privacy-first: everything runs in your browser.">
+<style>
+:root{
+  --bg:#080c14;--panel:#0f1622;--panel2:#141d2c;--line:#1e2a3d;
+  --txt:#e2e8f0;--dim:#8ba0bb;--dimmer:#5b7291;
+  --green:#22c55e;--greenbg:#052e1a;--amber:#f59e0b;--amberbg:#3a2a05;
+  --blue:#38bdf8;--red:#ef4444;--redbg:#3a0a0a;--purple:#a78bfa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-size:15px;line-height:1.6;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  padding:26px 16px 70px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto}
+header{border-bottom:2px solid var(--blue);padding-bottom:20px;margin-bottom:26px}
+.tag{display:inline-block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--blue);border:1px solid var(--blue);border-radius:3px;padding:3px 9px;
+  margin-bottom:12px;font-weight:600}
+h1{font-size:27px;letter-spacing:-.4px;margin-bottom:8px;line-height:1.2}
+.sub{color:var(--dim);font-size:14px}
+.privacy-pill{display:inline-flex;align-items:center;gap:6px;background:var(--greenbg);
+  color:var(--green);border:1px solid var(--green);border-radius:20px;
+  padding:4px 12px;font-size:11.5px;font-weight:600;margin-top:12px}
+h2{font-size:12.5px;text-transform:uppercase;letter-spacing:.13em;color:var(--blue);
+  margin:30px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}
+.gate{border-color:var(--amber);background:linear-gradient(180deg,var(--amberbg),var(--panel))}
+.gate h3{font-size:15px;color:var(--amber);margin-bottom:10px}
+.gate ul{list-style:none;margin:12px 0 16px}
+.gate li{padding-left:20px;position:relative;color:var(--dim);font-size:13.5px;margin-bottom:7px}
+.gate li:before{content:"\2717";position:absolute;left:0;color:var(--red);font-weight:700}
+.agree{display:flex;gap:11px;align-items:flex-start;cursor:pointer;
+  background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:13px;margin-top:6px}
+.agree input{margin-top:3px;width:17px;height:17px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.agree span{font-size:13px;color:var(--dim)}
+.agree span b{color:var(--txt)}
+label.f{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--dimmer);margin-bottom:7px;font-weight:600}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.fieldset{display:none}
+.fieldset.on{display:block}
+input[type=text],input[type=email],input[type=password]{
+  width:100%;background:#0a1018;border:1px solid var(--line);border-radius:7px;
+  padding:12px 14px;color:var(--txt);font-size:14.5px;font-family:inherit;transition:.15s}
+input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(56,189,248,.13)}
+.hint{font-size:11.5px;color:var(--dimmer);margin-top:6px}
+.actions{display:flex;gap:11px;margin-top:20px;flex-wrap:wrap}
+button{font-family:inherit;font-size:14px;font-weight:600;border:none;border-radius:7px;
+  padding:12px 24px;cursor:pointer;transition:.15s}
+.go{background:var(--blue);color:#04121c}
+.go:hover{filter:brightness(1.12)}
+.go:disabled{opacity:.4;cursor:not-allowed}
+.ghost{background:transparent;color:var(--dim);border:1px solid var(--line)}
+.ghost:hover{border-color:var(--dimmer);color:var(--txt)}
+#results{display:none}
+#results.on{display:block}
+.score{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+.ring{position:relative;width:132px;height:132px;flex-shrink:0}
+.ring svg{transform:rotate(-90deg)}
+.ring .val{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center}
+.ring .num{font-size:34px;font-weight:700;line-height:1}
+.ring .lbl{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dimmer)}
+.verdict{flex:1;min-width:230px}
+.verdict .v{font-size:18px;font-weight:700;margin-bottom:7px}
+.verdict p{color:var(--dim);font-size:13.5px}
+.bar{height:6px;background:var(--panel2);border-radius:4px;overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;border-radius:4px;transition:width .5s}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+tr:last-child td{border-bottom:none}
+.bd{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:3px 9px;border-radius:20px;white-space:nowrap;display:inline-block}
+.b-hit{background:var(--redbg);color:var(--red);border:1px solid var(--red)}
+.b-ok{background:var(--greenbg);color:var(--green);border:1px solid var(--green)}
+.b-unk{background:var(--amberbg);color:var(--amber);border:1px solid var(--amber)}
+.b-inf{background:#1a222f;color:var(--dimmer);border:1px solid var(--line)}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.chip{display:inline-block;background:var(--panel2);border:1px solid var(--line);
+  border-radius:6px;padding:8px 13px;margin:0 8px 8px 0;font-size:12.5px;font-weight:600;color:var(--dim)}
+.chip:hover{border-color:var(--blue);color:var(--blue);text-decoration:none}
+.log{background:#060a10;border:1px solid var(--line);border-radius:7px;padding:13px;
+  font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:190px;overflow-y:auto;color:var(--dim)}
+.log div{margin-bottom:3px}
+.log .p{color:var(--green)}.log .f{color:var(--red)}.log .i{color:var(--blue)}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--line);
+  border-top-color:var(--blue);border-radius:50%;animation:sp .7s linear infinite;
+  vertical-align:-1px;margin-right:7px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.note{font-size:12.5px;color:var(--dimmer);border-left:2px solid var(--line);
+  padding-left:13px;margin-top:13px;line-height:1.65}
+footer{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--dimmer);line-height:1.7}
+.hidden{display:none!important}
+@media print{body{background:#fff;color:#000}.actions,.gate,footer{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="tag">Privacy-First Self-Audit Tool</span>
+  <h1>Digital Footprint Self-Audit</h1>
+  <div class="sub">Find out what the open internet reveals about <b>your own</b> identifiers — and fix it.</div>
+  <div class="privacy-pill">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    100% client-side · nothing is stored or sent to any server
+  </div>
+</header>
+
+<!-- ================= ATTESTATION GATE ================= -->
+<div class="panel gate" id="gate">
+  <h3>&#9888; Lawful-use gate — read before continuing</h3>
+  <p style="color:var(--dim);font-size:13.5px">
+    This tool is built for <b style="color:var(--txt)">self-audit</b>: checking identifiers that belong to you.
+    The following are deliberately <b style="color:var(--txt)">not</b> part of this tool:
+  </p>
+  <ul>
+    <li>Searching a third party's phone number or email address</li>
+    <li>Returning breach or leaked records for anyone</li>
+    <li>Harvesting photographs of people</li>
+    <li>Any lookup that requires bypassing a login or a paywall</li>
+  </ul>
+  <label class="agree" for="attest">
+    <input type="checkbox" id="attest">
+    <span>I confirm the identifiers I enter are <b>my own</b>, or that I hold documented authorisation
+    (e.g. employer security review, client engagement) to assess them. I accept responsibility for
+    lawful use under GDPR / PECA / equivalent local law.</span>
+  </label>
+  <div class="actions">
+    <button class="go" id="unlock" disabled>Unlock the tool</button>
+  </div>
+</div>
+
+<div class="fieldset" id="tool">
+
+<!-- ================= INPUTS ================= -->
+<h2>1 · Your identifiers</h2>
+<div class="panel">
+  <div class="fields">
+    <div>
+      <label class="f" for="email">Email address</label>
+      <input type="email" id="email" placeholder="you@example.com" autocomplete="off" spellcheck="false">
+      <div class="hint">Used for your own Gravatar and breach-status check</div>
+    </div>
+    <div>
+      <label class="f" for="handle">Username / handle</label>
+      <input type="text" id="handle" placeholder="yourhandle" autocomplete="off" spellcheck="false">
+      <div class="hint">The handle you use across platforms</div>
+    </div>
+    <div>
+      <label class="f" for="name">Full name <span style="color:var(--dimmer);text-transform:none">(optional)</span></label>
+      <input type="text" id="name" placeholder="Your Name" autocomplete="off">
+    </div>
+    <div>
+      <label class="f" for="city">City / country <span style="color:var(--dimmer);text-transform:none">(optional)</span></label>
+      <input type="text" id="city" placeholder="e.g. Manchester, UK" autocomplete="off">
+      <div class="hint">Narrows name-based searches to reduce false positives</div>
+    </div>
+  </div>
+
+  <details style="margin-top:18px">
+    <summary style="cursor:pointer;color:var(--dim);font-size:13px;font-weight:600">
+      Optional: verified breach check with your own HaveIBeenPwned API key
+    </summary>
+    <div style="margin-top:12px">
+      <label class="f" for="hibpkey">HIBP API key (stays in this browser tab)</label>
+      <input type="password" id="hibpkey" placeholder="Your own HIBP API key" autocomplete="off">
+      <div class="hint">
+        HIBP only permits lookup of an address you control. Get a key at
+        <a href="https://haveibeenpwned.com/API/Key" target="_blank" rel="noopener">haveibeenpwned.com/API/Key</a>.
+        It is used directly from your browser and never transmitted anywhere else.
+      </div>
+    </div>
+  </details>
+
+  <div class="actions">
+    <button class="go" id="run">Run my self-audit</button>
+    <button class="ghost" id="reset">Reset</button>
+  </div>
+</div>
+
+<!-- ================= PROGRESS ================= -->
+<h2>2 · Scan progress</h2>
+<div class="panel">
+  <div class="log" id="log"><div class="i">Ready. Enter your identifiers and press Run.</div></div>
+</div>
+
+</div><!-- /#tool -->
+
+<!-- ================= RESULTS ================= -->
+<div id="results">
+
+  <h2>3 · Exposure score</h2>
+  <div class="panel">
+    <div class="score">
+      <div class="ring">
+        <svg width="132" height="132">
+          <circle cx="66" cy="66" r="56" stroke="#141d2c" stroke-width="11" fill="none"/>
+          <circle id="arc" cx="66" cy="66" r="56" stroke="#22c55e" stroke-width="11" fill="none"
+                  stroke-linecap="round" stroke-dasharray="351.9" stroke-dashoffset="351.9"/>
+        </svg>
+        <div class="val"><div class="num" id="scoreNum">—</div><div class="lbl">/ 100</div></div>
+      </div>
+      <div class="verdict">
+        <div class="v" id="verdict">Calculating…</div>
+        <p id="verdictText"></p>
+      </div>
+    </div>
+  </div>
+
+  <h2>4 · Platform presence</h2>
+  <div class="panel">
+    <table>
+      <thead><tr><th style="width:26%">Platform</th><th style="width:22%">Result</th><th>Detail</th></tr></thead>
+      <tbody id="ptable"></tbody>
+    </table>
+    <div class="note">
+      Checks marked <b>manual</b> cannot be automated from a browser — those platforms block
+      cross-origin requests. Click through and confirm for yourself; the result box stays under your control.
+    </div>
+  </div>
+
+  <h2>5 · Breach exposure</h2>
+  <div class="panel" id="breachPanel"></div>
+
+  <h2>6 · Search-engine exposure</h2>
+  <div class="panel">
+    <p style="color:var(--dim);font-size:13.5px;margin-bottom:14px">
+      These links run the equivalent of a manual search for your own identifiers. Open them and check
+      what is publicly indexed.
+    </p>
+    <div id="dorks"></div>
+    <div id="nameDorks"></div>
+  </div>
+
+  <h2>7 · Remediation checklist</h2>
+  <div class="panel" id="remediation"></div>
+
+  <h2>8 · Export</h2>
+  <div class="panel">
+    <p style="color:var(--dim);font-size:13.5px;margin-bottom:14px">
+      The report is generated entirely in your browser. Nothing is uploaded.
+    </p>
+    <div class="actions" style="margin-top:0">
+      <button class="go" id="printBtn">Save as PDF / Print</button>
+      <button class="ghost" id="jsonBtn">Download JSON</button>
+      <a class="ghost" style="text-decoration:none;padding:12px 24px;display:inline-block;border-radius:7px"
+         href="https://brandnew20042004-source.github.io/osint-footprint-report/" target="_blank" rel="noopener">
+        View sample full report ↗
+      </a>
+    </div>
+  </div>
+
+</div><!-- /#results -->
+
+<footer>
+  <b>How this works.</b> Every check runs in your browser using publicly accessible, unauthenticated
+  endpoints only. No data is stored, logged, transmitted to the operator, or shared with third parties.
+  There is no backend. Closing this tab erases everything.<br><br>
+  <b>Scope limits.</b> Breach data is not returned by this tool — you can check your own status via
+  HaveIBeenPwned with your own API key, or via their website. Phone-number lookup, third-party
+  breach aggregation and photograph harvesting are intentionally not implemented.<br><br>
+  <b>No warranty.</b> Results reflect publicly visible information at the moment of the scan and may
+  produce false positives or negatives. A clean result is not proof of a clean footprint.<br><br>
+  Built as a privacy-first self-audit utility · no tracking · no cookies · no analytics
+</footer>
+
+</div>
+<script>
+/* ============================================================
+   Digital Footprint Self-Audit — client-side engine
+   No network calls except to the platforms being checked.
+   No storage, no analytics, no backend.
+   ============================================================ */
+
+/* ---- minimal MD5 (for Gravatar) ---- */
+function md5(s){
+ function add(x,y){var l=(x&0xFFFF)+(y&0xFFFF),m=(x>>16)+(y>>16)+(l>>16);return (m<<16)|(l&0xFFFF);}
+ function rl(n,c){return (n<<c)|(n>>>(32-c));}
+ function c(q,a,b,x,s,t){return add(rl(add(add(a,q),add(x,t)),s),b);}
+ function ff(a,b,cc,d,x,s,t){return c((b&cc)|(~b&d),a,b,x,s,t);}
+ function gg(a,b,cc,d,x,s,t){return c((b&d)|(cc&~d),a,b,x,s,t);}
+ function hh(a,b,cc,d,x,s,t){return c(b^cc^d,a,b,x,s,t);}
+ function ii(a,b,cc,d,x,s,t){return c(cc^(b|~d),a,b,x,s,t);}
+ function core(x,len){
+  x[len>>5]|=0x80<<(len%32); x[(((len+64)>>>9)<<4)+14]=len;
+  var i,oa,ob,oc,od,a=1732584193,b=-271733879,cc=-1732584194,d=271733878;
+  for(i=0;i<x.length;i+=16){
+   oa=a;ob=b;oc=cc;od=d;
+   a=ff(a,b,cc,d,x[i],7,-680876936);d=ff(d,a,b,cc,x[i+1],12,-389564586);
+   cc=ff(cc,d,a,b,x[i+2],17,606105819);b=ff(b,cc,d,a,x[i+3],22,-1044525330);
+   a=ff(a,b,cc,d,x[i+4],7,-176418897);d=ff(d,a,b,cc,x[i+5],12,1200080426);
+   cc=ff(cc,d,a,b,x[i+6],17,-1473231341);b=ff(b,cc,d,a,x[i+7],22,-45705983);
+   a=ff(a,b,cc,d,x[i+8],7,1770035416);d=ff(d,a,b,cc,x[i+9],12,-1958414417);
+   cc=ff(cc,d,a,b,x[i+10],17,-42063);b=ff(b,cc,d,a,x[i+11],22,-1990404162);
+   a=ff(a,b,cc,d,x[i+12],7,1804603682);d=ff(d,a,b,cc,x[i+13],12,-40341101);
+   cc=ff(cc,d,a,b,x[i+14],17,-1502002290);b=ff(b,cc,d,a,x[i+15],22,1236535329);
+   a=gg(a,b,cc,d,x[i+1],5,-165796510);d=gg(d,a,b,cc,x[i+6],9,-1069501632);
+   cc=gg(cc,d,a,b,x[i+11],14,643717713);b=gg(b,cc,d,a,x[i],20,-373897302);
+   a=gg(a,b,cc,d,x[i+5],5,-701558691);d=gg(d,a,b,cc,x[i+10],9,38016083);
+   cc=gg(cc,d,a,b,x[i+15],14,-660478335);b=gg(b,cc,d,a,x[i+4],20,-405537848);
+   a=gg(a,b,cc,d,x[i+9],5,568446438);d=gg(d,a,b,cc,x[i+14],9,-1019803690);
+   cc=gg(cc,d,a,b,x[i+3],14,-187363961);b=gg(b,cc,d,a,x[i+8],20,1163531501);
+   a=gg(a,b,cc,d,x[i+13],5,-1444681467);d=gg(d,a,b,cc,x[i+2],9,-51403784);
+   cc=gg(cc,d,a,b,x[i+7],14,1735328473);b=gg(b,cc,d,a,x[i+12],20,-1926607734);
+   a=hh(a,b,cc,d,x[i+5],4,-378558);d=hh(d,a,b,cc,x[i+8],11,-2022574463);
+   cc=hh(cc,d,a,b,x[i+11],16,1839030562);b=hh(b,cc,d,a,x[i+14],23,-35309556);
+   a=hh(a,b,cc,d,x[i+1],4,-1530992060);d=hh(d,a,b,cc,x[i+4],11,1272893353);
+   cc=hh(cc,d,a,b,x[i+7],16,-155497632);b=hh(b,cc,d,a,x[i+10],23,-1094730640);
+   a=hh(a,b,cc,d,x[i+13],4,681279174);d=hh(d,a,b,cc,x[i],11,-358537222);
+   cc=hh(cc,d,a,b,x[i+3],16,-722521979);b=hh(b,cc,d,a,x[i+6],23,76029189);
+   a=hh(a,b,cc,d,x[i+9],4,-640364487);d=hh(d,a,b,cc,x[i+12],11,-421815835);
+   cc=hh(cc,d,a,b,x[i+15],16,530742520);b=hh(b,cc,d,a,x[i+2],23,-995338651);
+   a=ii(a,b,cc,d,x[i],6,-198630844);d=ii(d,a,b,cc,x[i+7],10,1126891415);
+   cc=ii(cc,d,a,b,x[i+14],15,-1416354905);b=ii(b,cc,d,a,x[i+5],21,-57434055);
+   a=ii(a,b,cc,d,x[i+12],6,1700485571);d=ii(d,a,b,cc,x[i+3],10,-1894986606);
+   cc=ii(cc,d,a,b,x[i+10],15,-1051523);b=ii(b,cc,d,a,x[i+1],21,-2054922799);
+   a=ii(a,b,cc,d,x[i+8],6,1873313359);d=ii(d,a,b,cc,x[i+15],10,-30611744);
+   cc=ii(cc,d,a,b,x[i+6],15,-1560198380);b=ii(b,cc,d,a,x[i+13],21,1309151649);
+   a=ii(a,b,cc,d,x[i+4],6,-145523070);d=ii(d,a,b,cc,x[i+11],10,-1120210379);
+   cc=ii(cc,d,a,b,x[i+2],15,718787259);b=ii(b,cc,d,a,x[i+9],21,-343485551);
+   a=add(a,oa);b=add(b,ob);cc=add(cc,oc);d=add(d,od);
+  }
+  return [a,b,cc,d];
+ }
+ function b2r(inp){var o="",i;for(i=0;i<inp.length*32;i+=8)o+=String.fromCharCode((inp[i>>5]>>>(i%32))&0xFF);return o;}
+ function r2b(inp){var o=[],i;o[(inp.length>>2)-1]=undefined;for(i=0;i<o.length;i++)o[i]=0;
+  for(i=0;i<inp.length*8;i+=8)o[i>>5]|=(inp.charCodeAt(i/8)&0xFF)<<(i%32);return o;}
+ function hex(inp){var t="0123456789abcdef",o="",x,i;
+  for(i=0;i<inp.length;i++){x=inp.charCodeAt(i);o+=t.charAt((x>>>4)&0xF)+t.charAt(x&0xF);}return o;}
+ return hex(b2r(core(r2b(unescape(encodeURIComponent(s.trim().toLowerCase()))),s.trim().toLowerCase().length*8)));
+}
+
+/* ---- tiny helpers ---- */
+var $=function(id){return document.getElementById(id);};
+function log(msg,cls){
+  var d=document.createElement("div");
+  d.className=cls||"";
+  d.innerHTML=msg;
+  var L=$("log"); L.appendChild(d); L.scrollTop=L.scrollHeight;
+}
+function esc(s){return String(s).replace(/[&<>"']/g,function(m){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m];});}
+function withTimeout(p,ms){
+  return Promise.race([p,new Promise(function(_,rej){setTimeout(function(){rej(new Error("timeout"));},ms);})]);
+}
+
+/* ---- probe: does a Gravatar image exist? ---- */
+function probeGravatar(hash){
+  return new Promise(function(res){
+    var img=new Image(),done=false;
+    var t=setTimeout(function(){if(!done){done=true;res(null);}},8000);
+    img.onload=function(){if(!done){done=true;clearTimeout(t);res(true);}};
+    img.onerror=function(){if(!done){done=true;clearTimeout(t);res(false);}};
+    img.src="https://gravatar.com/avatar/"+hash+"?d=404&s=200";
+  });
+}
+
+/* ---- probe: JSON endpoint with status reporting ---- */
+function probeJSON(url,opts,ms){
+  opts=opts||{};
+  var ctl=(typeof AbortController!=="undefined")?new AbortController():null;
+  var o={method:opts.method||"GET",headers:opts.headers||{}};
+  if(opts.body)o.body=opts.body;
+  if(ctl)o.signal=ctl.signal;
+  var p=fetch(url,o).then(function(r){
+    return r.text().then(function(t){
+      var j=null; try{j=JSON.parse(t);}catch(e){}
+      return {status:r.status,ok:r.ok,json:j,text:t};
+    });
+  });
+  if(ctl)setTimeout(function(){ctl.abort();},ms||9000);
+  return withTimeout(p,(ms||9000)+400);
+}
+
+/* ---- search-engine link builders ---- */
+var ENGINES=[
+ ["Google","https://www.google.com/search?q="],
+ ["Bing","https://www.bing.com/search?q="],
+ ["DuckDuckGo","https://duckduckgo.com/?q="],
+ ["Brave","https://search.brave.com/search?q="],
+ ["Yandex","https://yandex.com/search/?text="],
+ ["Mojeek","https://www.mojeek.com/search?q="],
+ ["Startpage","https://www.startpage.com/sp/search?query="],
+ ["Qwant","https://www.qwant.com/?q="]
+];
+function dorkLinks(q){
+  return ENGINES.map(function(e){
+    return '<a class="chip" target="_blank" rel="noopener noreferrer" href="'+e[1]+encodeURIComponent(q)+'">'+e[0]+'</a>';
+  }).join("");
+}
+
+/* ============================================================
+   State + scoring
+   ============================================================ */
+var state={email:"",handle:"",name:"",city:"",rows:[],hibpStatus:"unchecked",breachCount:0,breaches:[]};
+
+var MANUAL=[
+ ["Instagram","https://www.instagram.com/{h}/"],
+ ["Facebook","https://www.facebook.com/{h}"],
+ ["X / Twitter","https://x.com/{h}"],
+ ["TikTok","https://www.tiktok.com/@{h}"],
+ ["YouTube","https://www.youtube.com/@{h}"],
+ ["Pinterest","https://www.pinterest.com/{h}/"],
+ ["Snapchat","https://www.snapchat.com/add/{h}"],
+ ["Steam","https://steamcommunity.com/id/{h}"],
+ ["SoundCloud","https://soundcloud.com/{h}"],
+ ["Twitch","https://www.twitch.tv/{h}"],
+ ["Telegram","https://t.me/{h}"],
+ ["Medium","https://medium.com/@{h}"],
+ ["Behance","https://www.behance.net/{h}"],
+ ["Keybase","https://keybase.io/{h}"],
+ ["GitLab","https://gitlab.com/{h}"],
+ ["DeviantArt","https://www.deviantart.com/{h}"]
+];
+
+function score(){
+  var s=100;
+  state.rows.forEach(function(r){
+    if(r.status!=="hit")return;
+    if(r.kind==="identity")s-=14;
+    else if(r.kind==="search")s-=10;
+    else s-=5;
+  });
+  if(state.hibpStatus==="breached")s-=Math.min(25,10+state.breachCount*3);
+  if(state.hibpStatus==="none")s+=3;
+  return Math.max(0,Math.min(100,s));
+}
+
+function render(){
+  var s=score(), arc=$("arc"), C=2*Math.PI*56;
+  $("scoreNum").textContent=s;
+  arc.style.strokeDasharray=C;
+  arc.style.strokeDashoffset=C*(1-s/100);
+  var col=s>=85?"#22c55e":(s>=60?"#f59e0b":"#ef4444");
+  arc.setAttribute("stroke",col);
+  $("scoreNum").style.color=col;
+  var v,t;
+  if(s>=85){v="Low exposure";t="Your footprint is comparatively tight. Keep it that way by avoiding new public registrations under this handle.";}
+  else if(s>=60){v="Moderate exposure";t="Several public anchors exist that link your identifiers together. Work the checklist below to reduce the link-graph.";}
+  else {v="High exposure";t="Multiple identifiers are publicly linked. Prioritise the remediation checklist — each item compounds.";}
+  $("verdict").textContent=v; $("verdict").style.color=col;
+  $("verdictText").textContent=t;
+  $("results").classList.add("on");
+}
+
+/* ============================================================
+   Automated checks
+   ============================================================ */
+function addRow(platform,status,detail,kind,link){
+  var r={platform:platform,status:status,detail:detail,kind:kind,link:link};
+  state.rows.push(r); return r;
+}
+
+async function runScan(){
+  var email=$("email").value.trim(), handle=$("handle").value.trim(),
+      name=$("name").value.trim(), city=$("city").value.trim(), key=$("hibpkey").value.trim();
+  if(!email&&!handle){log("Enter at least an email address or a username.","f");return;}
+  state={email:email,handle:handle,name:name,city:city,rows:[],hibpStatus:"unchecked",breachCount:0,breaches:[]};
+  $("log").innerHTML=""; $("ptable").innerHTML=""; $("dorks").innerHTML=""; $("nameDorks").innerHTML="";
+
+  log("Starting self-audit…","i");
+  if(email)log("Email: "+esc(email),"");
+  if(handle)log("Handle: "+esc(handle),"");
+
+  /* ---- 1. Gravatar ---- */
+  if(email){
+    var h=md5(email);
+    log("Probing Gravatar for a public identity anchor…");
+    try{
+      var has=await probeGravatar(h);
+      if(has){
+        addRow("Gravatar","hit","Public avatar found for this address — an identity anchor that links your email to an image and any linked accounts.",
+               "identity","https://gravatar.com/"+h);
+        log('<span class="p">FOUND</span> — Gravatar profile exists (md5 '+h.slice(0,10)+'…)');
+      }else{
+        addRow("Gravatar","ok","No Gravatar identity — good. Your address is not anchored to a public avatar profile.","","https://gravatar.com/"+h);
+        log('<span class="f">CLEAR</span> — no Gravatar for this address');
+      }
+    }catch(e){ addRow("Gravatar","unk","Probe failed or timed out.","",""); log('<span class="f">ERR</span> Gravatar probe'); }
+  }
+
+  /* ---- 2. GitHub ---- */
+  if(handle){
+    log("Checking GitHub for @{h}…".replace("{h}",esc(handle)));
+    try{
+      var g=await probeJSON("https://api.github.com/users/"+encodeURIComponent(handle));
+      if(g.status===200&&g.json){
+        addRow("GitHub","hit","Profile exists: "+g.json.public_repos+" public repos, "+g.json.followers+" followers, created "+new Date(g.json.created_at).toLocaleDateString()+". Public name: "+(g.json.name||"not set")+".",
+               "identity",g.json.html_url);
+        log('<span class="p">FOUND</span> — GitHub profile @'+esc(g.json.login));
+      }else if(g.status===404){
+        addRow("GitHub","ok","No account with this handle — the username is available.","","https://github.com/"+handle);
+        log('<span class="f">CLEAR</span> — handle free on GitHub');
+      }else{
+        addRow("GitHub","unk","Returned HTTP "+g.status+" — likely rate limiting. Re-run shortly or check manually.","","https://github.com/"+handle);
+        log('<span class="f">INCONCLUSIVE</span> — GitHub HTTP '+g.status);
+      }
+    }catch(e){ addRow("GitHub","unk","Request blocked or timed out.","","https://github.com/"+handle); log('<span class="f">ERR</span> GitHub'); }
+  }
+
+  /* ---- 3. GitHub email pivot ---- */
+  if(email){
+    log("Searching GitHub for commits authored by this address…");
+    try{
+      var q=await probeJSON("https://api.github.com/search/users?q="+encodeURIComponent(email)+"+in:email");
+      if(q.json&&typeof q.json.total_count==="number"){
+        if(q.json.total_count>0){
+          addRow("GitHub (email)","hit",q.json.total_count+" account(s) publicly expose this email address on GitHub.",
+                 "search","https://github.com/search?q="+encodeURIComponent(email+" in:email")+"&type=users");
+          log('<span class="p">FOUND</span> — '+q.json.total_count+' GitHub account(s) list this email publicly');
+        }else{
+          addRow("GitHub (email)","ok","No GitHub account publicly lists this address.","","");
+          log('<span class="f">CLEAR</span> — email not exposed on GitHub');
+        }
+      }else{ addRow("GitHub (email)","unk","Search unavailable (rate limit).","",""); }
+    }catch(e){ addRow("GitHub (email)","unk","Search request failed.","",""); }
+  }
+
+  /* ---- 4. Roblox ---- */
+  if(handle){
+    log("Checking Roblox username registry…");
+    try{
+      var rb=await probeJSON("https://users.roblox.com/v1/usernames/users",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({usernames:[handle],excludeBannedUsers:true})});
+      if(rb.status===200&&rb.json&&rb.json.data&&rb.json.data.length){
+        var u=rb.json.data[0];
+        addRow("Roblox","hit","Gaming profile exists: display name \""+(u.displayName||u.name)+"\", user ID "+u.id+".",
+               "profile","https://www.roblox.com/users/"+u.id+"/profile");
+        log('<span class="p">FOUND</span> — Roblox account '+esc(u.name));
+      }else if(rb.status===200){
+        addRow("Roblox","ok","No Roblox account with this handle.","","");
+        log('<span class="f">CLEAR</span> — handle free on Roblox');
+      }else{ addRow("Roblox","unk","HTTP "+rb.status+" — check manually.","",""); }
+    }catch(e){ addRow("Roblox","unk","Request blocked.","",""); }
+  }
+
+  /* ---- 5. Reddit ---- */
+  if(handle){
+    log("Checking Reddit…");
+    try{
+      var rd=await probeJSON("https://www.reddit.com/user/"+encodeURIComponent(handle)+"/about.json");
+      if(rd.status===200&&rd.json&&rd.json.data){
+        var d=rd.json.data;
+        addRow("Reddit","hit","Profile exists: "+(d.total_karma||0)+" karma, created "+new Date((d.created_utc||0)*1000).toLocaleDateString()+".","profile","https://www.reddit.com/user/"+handle);
+        log('<span class="p">FOUND</span> — Reddit u/'+esc(handle));
+      }else if(rd.status===404){
+        addRow("Reddit","ok","No Reddit account with this handle.","","");
+        log('<span class="f">CLEAR</span> — handle free on Reddit');
+      }else{
+        addRow("Reddit","unk","HTTP "+rd.status+" — Reddit blocks many automated requests. Check manually.","","https://www.reddit.com/user/"+handle);
+        log('<span class="f">INCONCLUSIVE</span> — Reddit HTTP '+rd.status);
+      }
+    }catch(e){ addRow("Reddit","unk","Blocked by CORS or timed out — check manually.","","https://www.reddit.com/user/"+handle); }
+  }
+
+  /* ---- 6. HIBP ---- */
+  var bp=$("breachPanel");
+  if(email&&key){
+    log("Querying HaveIBeenPwned with your API key…");
+    try{
+      var b=await probeJSON("https://haveibeenpwned.com/api/v3/breachedaccount/"+encodeURIComponent(email)+"?truncateResponse=false",{headers:{"hibp-api-key":key}});
+      if(b.status===200&&Array.isArray(b.json)){
+        state.hibpStatus="breached"; state.breachCount=b.json.length; state.breaches=b.json;
+        log('<span class="p">FOUND</span> — '+b.json.length+' breach(es) include this address');
+        bp.innerHTML='<div style="color:var(--red);font-weight:700;font-size:16px;margin-bottom:10px">&#9888; This address appears in '+b.json.length+' known data breach(es)</div>'
+         +'<table><thead><tr><th>Breach</th><th>Date</th><th>Data exposed</th></tr></thead><tbody>'
+         +b.json.map(function(x){return '<tr><td><b>'+esc(x.Name)+'</b></td><td>'+(x.BreachDate||"—")+'</td><td>'+esc((x.DataClasses||[]).join(", "))+'</td></tr>';}).join("")
+         +'</tbody></table><div class="note">Change the password on any account sharing this address, and enable 2FA. If you reused that password anywhere, change it there first.</div>';
+      }else if(b.status===404){
+        state.hibpStatus="none";
+        log('<span class="f">CLEAR</span> — address not found in any known breach');
+        bp.innerHTML='<div style="color:var(--green);font-weight:700;font-size:16px;margin-bottom:8px">&#10003; Good news — no known breach includes this address</div>'
+         +'<p style="color:var(--dim);font-size:13.5px">This means no breach in the HaveIBeenPwned corpus contains it, as of now. It does not guarantee the address was never leaked into an unindexed dataset.</p>';
+      }else if(b.status===401){
+        state.hibpStatus="error";
+        log('<span class="f">ERR</span> — HIBP rejected the key (401)');
+        bp.innerHTML='<div style="color:var(--amber)">HaveIBeenPwned rejected that API key. Check it and try again.</div>';
+      }else if(b.status===429){
+        log('<span class="f">ERR</span> — HIBP rate limit (429)');
+        bp.innerHTML='<div style="color:var(--amber)">Rate limited by HaveIBeenPwned. Wait a moment and re-run.</div>';
+      }else{
+        state.hibpStatus="error";
+        bp.innerHTML='<div style="color:var(--amber)">Unexpected response (HTTP '+b.status+'). Verify manually at <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">haveibeenpwned.com</a>.</div>';
+      }
+    }catch(e){
+      state.hibpStatus="error";
+      bp.innerHTML='<div style="color:var(--amber)">The breach request could not complete — usually a CORS or network restriction. Verify manually at <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">haveibeenpwned.com</a>.</div>';
+    }
+  }else{
+    bp.innerHTML='<div style="color:var(--dim);font-size:13.5px">Breach status not checked. This tool does not return breach records itself — '
+     +'HaveIBeenPwned only permits lookups of an address you control. '
+     +'<a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Check it on HIBP directly</a>, or add your own API key above to automate it here.</div>';
+  }
+
+  /* ---- 7. Manual platforms ---- */
+  if(handle){
+    log("Building manual-verification list for "+MANUAL.length+" platforms…","i");
+    var tb=$("ptable");
+    MANUAL.forEach(function(m){
+      var url=m[1].replace("{h}",encodeURIComponent(handle));
+      var tr=document.createElement("tr");
+      tr.innerHTML='<td><b>'+m[0]+'</b></td>'
+        +'<td class="st"><span class="bd b-inf">Manual</span></td>'
+        +'<td><a href="'+url+'" target="_blank" rel="noopener noreferrer">Open profile page ↗</a>'
+        +'<div style="margin-top:8px;font-size:12px;color:var(--dimmer)">Does this page show your account?</div>'
+        +'<div style="margin-top:6px">'
+        +'<button class="ghost yes" style="padding:5px 11px;font-size:11.5px">That&#39;s me</button> '
+        +'<button class="ghost no" style="padding:5px 11px;font-size:11.5px">Not me / free</button>'
+        +'</div></td>';
+      tb.appendChild(tr);
+      var cell=tr.querySelector(".st"), r=null;
+      tr.querySelector(".yes").onclick=function(){
+        if(r)state.rows.splice(state.rows.indexOf(r),1);
+        r=addRow(m[0],"hit","You confirmed a public profile exists on this platform.","profile",url);
+        cell.innerHTML='<span class="bd b-hit">Exposed</span>'; render();
+      };
+      tr.querySelector(".no").onclick=function(){
+        if(r)state.rows.splice(state.rows.indexOf(r),1);
+        r=null; cell.innerHTML='<span class="bd b-ok">Clear</span>'; render();
+      };
+    });
+    /* append automated rows above the manual ones */
+    var autoRows=state.rows.filter(function(x){return x.status;});
+    autoRows.filter(function(x){return !MANUAL.some(function(m){return m[0]===x.platform;});})
+      .forEach(function(x){
+        var tr=document.createElement("tr");
+        var cls=x.status==="hit"?"b-hit":(x.status==="ok"?"b-ok":"b-unk");
+        var lbl=x.status==="hit"?"Exposed":(x.status==="ok"?"Clear":"Inconclusive");
+        tr.innerHTML='<td><b>'+esc(x.platform)+'</b></td><td><span class="bd '+cls+'">'+lbl+'</span></td><td>'
+          +esc(x.detail)+(x.link?' <a href="'+x.link+'" target="_blank" rel="noopener noreferrer">Open ↗</a>':'')+'</td>';
+        tb.insertBefore(tr,tb.firstChild);
+      });
+  }
+
+  /* ---- 8. Dorks ---- */
+  if(handle){
+    $("dorks").innerHTML='<div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--dimmer);margin-bottom:10px">Your handle</div>'
+      +dorkLinks('"'+handle+'"')
+      +'<div style="margin-top:10px">'+dorkLinks('site:github.com OR site:reddit.com OR site:instagram.com "'+handle+'"')+'</div>';
+  }
+  if(email){
+    $("dorks").innerHTML+='<div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--dimmer);margin:18px 0 10px">Your email address</div>'
+      +dorkLinks('"'+email+'"');
+  }
+  if(name){
+    var nq=city?('"'+name+'" "'+city+'"'):('"'+name+'"');
+    $("nameDorks").innerHTML='<div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--dimmer);margin:18px 0 10px">Your name'+(city?" + location":"")+' — expect false positives</div>'
+      +dorkLinks(nq);
+    log("Name-based searches generate false positives. Verify any match against a second anchor before acting.","i");
+  }
+
+  /* ---- 9. Remediation ---- */
+  var hits=state.rows.filter(function(x){return x.status==="hit";});
+  var rem=[];
+  if(state.hibpStatus==="breached"){
+    rem.push("<b>Change passwords on every account using this email.</b> Install a password manager and generate unique credentials. Enable 2FA everywhere — start with email, banking and social accounts.");
+  }
+  if(hits.some(function(x){return x.platform==="Gravatar";})){
+    rem.push("<b>Decide your Gravatar position.</b> A Gravatar links your email hash to an image and any linked services. If you don't need it, delete the profile — data brokers harvest these.");
+  }
+  if(hits.some(function(x){return x.platform.indexOf("GitHub")===0;})){
+    rem.push("<b>Review your GitHub exposure.</b> Hide your email in commit settings and enable the noreply address. Audit profile fields for real name, employer and location.");
+  }
+  if(hits.length>0){
+    rem.push("<b>Reduce handle reuse.</b> The more platforms share one handle, the easier your profiles become to cross-link. Compartmentalise: different handles for gaming, professional and personal use.");
+    rem.push("<b>Lock down the profiles you keep.</b> Set account visibility to private where the platform allows, and strip out real name, employer and location from bios.");
+  }
+  rem.push("<b>Register your handle on platforms you don't use.</b> Prevent impersonation. If you don't register it, someone else can take your identity anchor.");
+  rem.push("<b>Remove yourself from data brokers.</b> Run opt-out requests with the major people-search brokers in your jurisdiction — GDPR Art. 17 erasure requests are effective in the EU/UK.");
+  rem.push("<b>Re-audit in 30–90 days.</b> Footprints change whenever you register somewhere new. Set a reminder.");
+  $("remediation").innerHTML='<ul style="list-style:none">'
+    +rem.map(function(x){return '<li style="padding-left:20px;position:relative;margin-bottom:11px;color:var(--dim);font-size:13.5px">'
+      +'<span style="position:absolute;left:0;color:var(--blue)">&#9656;</span>'+x+'</li>';}).join("")+'</ul>';
+
+  log("Audit complete.","p");
+  render();
+  $("results").scrollIntoView({behavior:"smooth"});
+}
+
+/* ============================================================
+   Wiring
+   ============================================================ */
+$("attest").onchange=function(){ $("unlock").disabled=!this.checked; };
+$("unlock").onclick=function(){
+  $("gate").classList.add("hidden");
+  $("tool").classList.add("on");
+  log("Tool unlocked. Enter your identifiers above and press Run.","i");
+};
+$("run").onclick=runScan;
+$("reset").onclick=function(){
+  ["email","handle","name","city","hibpkey"].forEach(function(i){$(i).value="";});
+  $("log").innerHTML='<div class="i">Reset. Ready.</div>';
+  $("results").classList.remove("on");
+  $("ptable").innerHTML="";
+};
+$("printBtn").onclick=function(){window.print();};
+$("jsonBtn").onclick=function(){
+  var out={generated:new Date().toISOString(),email:state.email?"[provided]":"",handle:state.handle,
+    score:score(),breachStatus:state.hibpStatus,breaches:state.breaches.map(function(b){return {name:b.Name,date:b.BreachDate,data:b.DataClasses};}),
+    findings:state.rows.map(function(r){return {platform:r.platform,status:r.status,kind:r.kind,detail:r.detail,link:r.link};})};
+  var blob=new Blob([JSON.stringify(out,null,2)],{type:"application/json"});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="footprint-self-audit.json"; a.click();
+  URL.revokeObjectURL(a.href);
+};
+window.addEventListener("load",function(){ log("To begin, tick the lawful-use box and unlock the tool.","i"); });
+</script>
+</body>
+</html>
